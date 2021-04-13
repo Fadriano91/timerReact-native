@@ -1,40 +1,123 @@
-import React from 'react'
-import { SafeAreaView, View, StyleSheet, Text, TouchableOpacity } from 'react-native'
+import React, { useRef, useState, useEffect } from 'react'
+import { SafeAreaView, View, StyleSheet, Text, TouchableOpacity, Animated } from 'react-native'
 import { AntDesign } from '@expo/vector-icons'
-import Sandclock from './components/Sandclock'
+import { Audio } from 'expo-av'
+import Sandclock from './components/Sandclock'   //Tive dificuldade, pois a imagem rodava na web e no mobile não, 
+//foi necessario fazer a converção SRV em outro site que acabou dando certo.
 
-const Botao = ({ onPress }) => {
+
+const Botao = ({ onPress, animatedValue }) => {
+
+useEffect(() => {
+  async function audioPlay(){
+    const { sound } = await Audio.Sound.createAsync(
+       require('./assets/Won.mp3')
+    );
+    await sound.playAsync();
+  }
+
+
+  if (timer == 0 ) {
+    audioPlay(); 
+  };
+  if(timer != 5 && timer >0){
+    startTimer()
+  } 
+}, timer);
+
+const [timer, setTimer] = React.useState(5)
+
+function startTimer() {
+  if(timer == 0){
+    setTimer(5)
+  }
+ setTimeout(counterNegative, 1000);
+
+  function counterNegative() {
+      setTimer(previousTime => previousTime - 1);
+  }
+}
+
   return (
-    <View style={[StyleSheet.absoluteFillObject, styles.containerBotao]}>
-        <Text style={styles.titulo}>Timer</Text>
-        
-          <AntDesign name="clockcircle" style={styles.relogio}/>
-          
-        <TouchableOpacity onPress={onPress}>
-          <View style={[styles.play]}>
+    <View style={[StyleSheet.absoluteFillObject, estilos.containerBotao]}>
+      <Text style={estilos.titulo}> {timer} </Text>
+     
+      <Animated.View style={[estilos.relogio, {
+  transform: [
+    {
+      translateX: animatedValue.interpolate({
+        inputRange: [0, 0.5, 1],
+        outputRange: [0 , 380, 0]
+      })
+    }
+  ]
+}]}>
+      <AntDesign name="clockcircle" style={estilos.relogio} />
+</Animated.View>
+     
+
+      <Animated.View style={[estilos.play, {
+        transform: [
+        {
+          rotate: animatedValue.interpolate({
+            inputRange: [0, 0.5, 1],
+            outputRange: ['0deg', '360deg', '0deg']
+          })
+        }
+      ]
+      }]}>
+      <TouchableOpacity onPress={() => {startTimer(timer); onPress()}} >
+      
+        <View style={[estilos.play]}>
           <AntDesign name="playcircleo" size={100} color={"#1C1C1C"} />
-          </View>
-        </TouchableOpacity>
-          <AntDesign name="Trophy" style={styles.trofeu}/>
-          <Sandclock />
+        </View>
+      </TouchableOpacity>
+      </Animated.View>
+
+      <Animated.View style={[estilos.trofeu, {
+        transform: [
+          {
+            translateY: animatedValue.interpolate({
+              inputRange: [0 , 0.5, 1],
+              outputRange: [0 , -105, 0]
+            })
+          }
+        ]
+      }]}>
+      <AntDesign name="Trophy" style={estilos.trofeu} />
+      </Animated.View>
+      
+      <Sandclock />
+      
     </View>
   )
 }
+  
+  
 
-export default function App(){
+export default function App() {
+  const animatedValue = useRef(new Animated.Value(0)).current
+  const [indice, setIndice] = useState(0)
+  
+  const animation = (toValue) => Animated.timing(animatedValue, {
+    toValue: toValue,
+    duration: 10000,
+    useNativeDriver: false
+  })
+
   const onPress = () => {
-    let mensagem = "Você clicou"
-    alert(mensagem)
+    setIndice(indice === 1 ? 0 : 1)
+    animation(indice === 1 ? 0 : 1).start()
   }
 
-  return(
-    <SafeAreaView style={styles.container}>
-      <Botao onPress={onPress}/>
+  return (
+    <SafeAreaView style={estilos.container}>
+      <Botao onPress={onPress} animatedValue={animatedValue} />
     </SafeAreaView>
   )
 }
 
-const styles = StyleSheet.create({
+const estilos = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#008B8B",
@@ -53,22 +136,22 @@ const styles = StyleSheet.create({
   },
   relogio: {
     fontSize: 30,
-    color: "#363636",
+    color: "#6495ED",
     paddingTop: 70,
     paddingRight: '90%'
   },
   play: {
     backgroundColor: "#6495ED",
-    height: 100 ,                   //Ajustar o TouchableOpacity junto com a extremidade do icon, e fazer o background
-    width: 100 ,
+    height: 100,                   //Ajustar o TouchableOpacity junto com a extremidade do icon, e fazer o background
+    width: 100,
     borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center'
-    
+
   },
   trofeu: {
     fontSize: 30,
-    color: "#363636",
-    paddingLeft: '90%'
+    color: "#808000",
+    paddingLeft: '78%'
   }
 })
