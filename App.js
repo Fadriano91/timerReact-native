@@ -73,7 +73,7 @@ function inicioTimer() {
       <TouchableOpacity onPress={() => {inicioTimer(timer); onPress()}} >
       
         <View style={[estilos.play]}>
-          <AntDesign name="playcircleo" size={100} color={"#1C1C1C"} />
+          <AntDesign name="playcircleo" size={100} color={"#FFFFFF"} />
         </View>
       </TouchableOpacity>
       </Animated.View>
