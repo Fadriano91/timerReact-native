@@ -22,7 +22,7 @@ useEffect(() => {
 
 
   if (timer == 0 ) {
-   // audioPlay(); 
+    audioPlay(); 
   };
   if(timer != tempo && timer >0){
     inicioTimer()
